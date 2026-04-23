@@ -26,6 +26,15 @@ const transactionSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    category: {
+      type: String,
+      enum: ['Food', 'Travel', 'Rent', 'Utilities', 'Entertainment', 'Shopping', 'Other'],
+      default: 'Other',
+    },
+    receiptUrl: {
+      type: String,
+      default: null,
+    },
     isDeleted: {
       type: Boolean,
       default: false,

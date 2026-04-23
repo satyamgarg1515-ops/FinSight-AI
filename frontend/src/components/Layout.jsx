@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { LayoutDashboard, ArrowLeftRight, LogOut, Moon, Sun, User } from 'lucide-react';
+import { LayoutDashboard, ArrowLeftRight, LogOut, Moon, Sun, User, Users, ShieldAlert, LineChart, Network } from 'lucide-react';
 
 const Layout = ({ children }) => {
   const { user, logout } = useContext(AuthContext);
@@ -16,7 +16,14 @@ const Layout = ({ children }) => {
   const navItems = [
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
     { name: 'Transactions', path: '/transactions', icon: <ArrowLeftRight size={20} /> },
+    { name: 'User Balances', path: '/user-balances', icon: <Users size={20} /> },
+    { name: 'Split Groups', path: '/groups', icon: <Network size={20} /> },
+    { name: 'AI Insights', path: '/insights', icon: <LineChart size={20} /> },
   ];
+
+  if (user && user.role === 'Admin') {
+    navItems.push({ name: 'Admin Panel', path: '/admin', icon: <ShieldAlert size={20} /> });
+  }
 
   return (
     <div className="app-container">

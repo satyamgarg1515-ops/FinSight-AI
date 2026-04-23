@@ -12,40 +12,46 @@ export const getDashboardAnalytics = async (req, res) => {
     const transactions = await Transaction.find({
       $or: [{ sender: userId }, { receiver: userId }],
       isDeleted: false,
-    });
+    }).populate('sender', 'username').populate('receiver', 'username');
 
     let totalGiven = 0;
     let totalReceived = 0;
-    const userBalances = {}; // Track balances with unique users
+    const userBalances = {};
 
     transactions.forEach((tx) => {
       const amount = tx.amount;
-      const isSender = tx.sender.toString() === userId.toString();
-      const otherUserId = isSender ? tx.receiver.toString() : tx.sender.toString();
+      const isSender = tx.sender._id.toString() === userId.toString();
+      
+      const otherUserId = isSender ? tx.receiver._id.toString() : tx.sender._id.toString();
+      const otherUserName = isSender ? tx.receiver.username : tx.sender.username;
 
       if (!userBalances[otherUserId]) {
-        userBalances[otherUserId] = 0;
+        userBalances[otherUserId] = { username: otherUserName, balance: 0 };
       }
 
       if (isSender) {
         totalGiven += amount;
-        userBalances[otherUserId] += amount; // We gave them
+        userBalances[otherUserId].balance += amount; 
       } else {
         totalReceived += amount;
-        userBalances[otherUserId] -= amount; // They gave us
+        userBalances[otherUserId].balance -= amount;
       }
     });
 
-    const netBalance = totalReceived - totalGiven; // Positive means you have overall more money now than you started with? Wait.
-    // Usually: Net Balance = Total Received - Total Given. 
-    // Wait, if I give 100, and receive 50, my net balance is -50. (I am owed 50).
-    // Let's refine: "Total Given" vs "Total Received".
+    const netBalance = totalReceived - totalGiven;
+
+    // Convert map to array for easier frontend rendering
+    const balancesArray = Object.keys(userBalances).map((keys) => ({
+      userId: keys,
+      username: userBalances[keys].username,
+      balance: userBalances[keys].balance
+    }));
 
     res.json({
       totalGiven,
       totalReceived,
       netBalance,
-      userBalances, // map of user_id -> balance
+      userBalances: balancesArray,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

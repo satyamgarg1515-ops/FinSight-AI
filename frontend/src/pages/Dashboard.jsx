@@ -88,15 +88,15 @@ const Dashboard = ({ toggleTheme, theme }) => {
         {/* User Balances PIE representation placeholder or something similar... */}
         <div className="glass-card">
           <h3 className="font-bold mb-4">User-wise Balances</h3>
-          {Object.keys(analytics?.userBalances || {}).length === 0 ? (
+          {(!analytics?.userBalances || analytics.userBalances.length === 0) ? (
              <p className="text-muted">No interactions yet.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-               {Object.entries(analytics.userBalances).map(([userId, balance]) => (
-                  <div key={userId} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'var(--bg-main)', borderRadius: '8px' }}>
-                    <span className="font-medium">User ID: {userId.substring(0,6)}...</span>
-                    <span className={`font-bold ${balance > 0 ? 'text-danger' : 'text-success'}`}>
-                       {balance > 0 ? `You owe ₹${balance}` : `Owes you ₹${Math.abs(balance)}`}
+               {analytics.userBalances.map((userStats) => (
+                  <div key={userStats.userId} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'var(--bg-main)', borderRadius: '8px' }}>
+                    <span className="font-medium">{userStats.username}</span>
+                    <span className={`font-bold ${userStats.balance > 0 ? 'text-danger' : 'text-success'}`}>
+                       {userStats.balance > 0 ? `You owe ₹${userStats.balance}` : `Owes you ₹${Math.abs(userStats.balance)}`}
                     </span>
                   </div>
                ))}
